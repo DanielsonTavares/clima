@@ -1,2 +1,11 @@
 .App {
 }
+
+#cep {
+  display: flex;
+  align-items: center;
+}
+
+#cep-icon {
+  margin-left: 4px;
+}
