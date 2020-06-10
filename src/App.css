@@ -1,11 +1,42 @@
 .App {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
 }
 
 #cep {
   display: flex;
   align-items: center;
+  margin-top: 40px;
+}
+#cep input {
+  font-size: 1.2em;
+  text-align: center;
 }
 
 #cep-icon {
   margin-left: 4px;
+}
+
+#localidade {
+  padding-top: 25px;
+  font-size: 1.4em;
+}
+
+#temperatura-atual {
+  padding-top: 25px;
+  font-size: 1.4em;
+}
+
+#temperaturas {
+  padding-top: 25px;
+  font-size: 1.4em;
+  display: flex;
+}
+
+.box {
+  background-color: tomato;
+  width: 80px;
+  height: 80px;
+  border: 2px solid red;
 }

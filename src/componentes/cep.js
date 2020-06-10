@@ -44,6 +44,12 @@ export default function Cep() {
     });
   }
 
+  function exibeTemperaturaAtual() {
+    if (cidade.localidade && temperatura.temp) {
+      return `${cidade.localidade}, ${cidade.uf}. ${temperatura.temp}°C, ${temperatura.description}`;
+    }
+  }
+
   return (
     <>
       <div id="cep">
@@ -51,28 +57,31 @@ export default function Cep() {
           type="text"
           placeholder="00000-000"
           value={cep}
+          size="9"
+          maxLength="9"
           onChange={handleInputCep}
         ></input>
 
         <MdSend id="cep-icon" onClick={handleCepClick}></MdSend>
       </div>
-      <div>
-        {cidade.localidade && (
-          <p>{`Previsão do tempo para: ${cidade.localidade}, ${cidade.uf}`} </p>
-        )}
+
+      <div id="localidade">
+        <span>{exibeTemperaturaAtual()}</span>
       </div>
 
       {temperatura.temp && (
-        <div>
-          {`Temperatura: ${temperatura.temp}, ${temperatura.description}`}
+        <div id="temperaturas">
           <ul>
             {temperatura.previsao.map((item) => (
               <li key={item.date}>
-                {item.date} - Max/min: {item.max}/{item.min} =>{" "}
+                {item.date} - Max/min: {item.max}/{item.min}
                 {item.description}{" "}
               </li>
             ))}
           </ul>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
         </div>
       )}
     </>
