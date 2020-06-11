@@ -14,6 +14,9 @@ export default function Cep() {
 
   function handleMsgErro() {
     setMsgErro("Não foi possível encontrar o cep informado.");
+    setTimeout(function () {
+      setMsgErro("");
+    }, 3000);
   }
 
   function handleInputCep(event) {
@@ -65,10 +68,15 @@ export default function Cep() {
       });
   }
 
-  function exibeTemperaturaAtual() {
+  function ExibeTemperaturaAtual() {
     if (cidade.localidade && temperatura.temp) {
-      return `${cidade.localidade}, ${cidade.uf}. ${temperatura.temp}°C, ${temperatura.description}`;
+      return (
+        <span>
+          {`${cidade.localidade}, ${cidade.uf}. ${temperatura.temp}°C, ${temperatura.description}`}
+        </span>
+      );
     }
+    return <></>;
   }
 
   function Previsao(props) {
@@ -78,7 +86,7 @@ export default function Cep() {
       <span className="box">
         <span className="data">{props.temp.data}</span>
         <span className="max">{props.temp.max}°C</span>
-        <span className="descricao">{props.temp.descricao}</span>
+        {/* <span className="descricao">{props.temp.descricao}</span> */}
         <span className="min">{props.temp.min}°C</span>
       </span>
     );
@@ -86,10 +94,14 @@ export default function Cep() {
 
   return (
     <>
+      <span id="msgerro" className={msgErro ? "show-erro" : "hide-erro"}>
+        {msgErro}
+      </span>
+
       <div id="cep">
         <input
           type="text"
-          placeholder="00000-000"
+          placeholder="Informe o cep"
           value={cep}
           size="9"
           maxLength="9"
@@ -99,12 +111,9 @@ export default function Cep() {
         <MdSend id="cep-icon" onClick={handleCepClick}></MdSend>
       </div>
 
-      <div id="msgerro" className={msgErro ? "show-erro" : "hide-erro"}>
-        {msgErro}
-      </div>
-
       <div id="localidade">
-        <span>{exibeTemperaturaAtual()}</span>
+        {/* <span>{exibeTemperaturaAtual()}</span> */}
+        <ExibeTemperaturaAtual></ExibeTemperaturaAtual>
       </div>
 
       {temperatura.temp && (
