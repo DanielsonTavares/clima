@@ -6,10 +6,15 @@ export default function Cep() {
   const [cep, setCep] = useState("0");
   const [cidade, setCidade] = useState({});
   const [temperatura, setTemperatura] = useState({});
+  const [msgErro, setMsgErro] = useState("");
 
   useEffect(() => {
     setCep("01001-000");
   }, []);
+
+  function handleMsgErro() {
+    setMsgErro("Não foi possível encontrar o cep informado.");
+  }
 
   function handleInputCep(event) {
     setCep(event.target.value);
@@ -17,37 +22,66 @@ export default function Cep() {
 
   function handleCepClick() {
     setTemperatura({});
+    setCidade({});
+    setMsgErro("");
 
-    axios.get(`http://viacep.com.br/ws/${cep}/json/`).then((response) => {
-      setCidade({
-        localidade: response.data.localidade,
-        uf: response.data.uf,
-      });
+    axios
+      .get(`http://viacep.com.br/ws/${cep}/json/`)
+      .then((response) => {
+        if (response.data.erro) {
+          handleMsgErro();
+          return;
+        }
 
-      /* Devido ao CORS tive que usar um proxy, conforme https://stackoverflow.com/questions/43871637/no-access-control-allow-origin-header-is-present-on-the-requested-resource-whe */
-      const proxyurl = "https://cors-anywhere.herokuapp.com/";
-
-      axios
-        .get(
-          `${proxyurl}https://api.hgbrasil.com/weather?key=4ca37f5d&city_name=${response.data.localidade},${response.data.uf}`
-        )
-        .then((response) => {
-          //console.log(response.data.results);
-          setTemperatura({
-            temp: response.data.results.temp,
-            description: response.data.results.description,
-            date: response.data.results.date,
-            time: response.data.results.time,
-            previsao: response.data.results.forecast,
-          });
+        setCidade({
+          localidade: response.data.localidade,
+          uf: response.data.uf,
         });
-    });
+
+        /* Devido ao CORS tive que usar um proxy, conforme https://stackoverflow.com/questions/43871637/no-access-control-allow-origin-header-is-present-on-the-requested-resource-whe */
+        const proxyurl = "https://cors-anywhere.herokuapp.com/";
+
+        axios
+          .get(
+            `${proxyurl}https://api.hgbrasil.com/weather?key=4ca37f5d&city_name=${response.data.localidade},${response.data.uf}`
+          )
+          .then((response) => {
+            setTemperatura({
+              temp: response.data.results.temp,
+              description: response.data.results.description,
+              date: response.data.results.date,
+              time: response.data.results.time,
+              previsao: response.data.results.forecast,
+            });
+          })
+          .catch((error) => {
+            handleMsgErro();
+            console.log("Erro ao consultar hgbrasil: " + error.message);
+          });
+      })
+      .catch((error) => {
+        handleMsgErro();
+        console.log("Erro ao consultar Viacep: " + error.message);
+      });
   }
 
   function exibeTemperaturaAtual() {
     if (cidade.localidade && temperatura.temp) {
       return `${cidade.localidade}, ${cidade.uf}. ${temperatura.temp}°C, ${temperatura.description}`;
     }
+  }
+
+  function Previsao(props) {
+    //console.log(props);
+
+    return (
+      <span className="box">
+        <span className="data">{props.temp.data}</span>
+        <span className="max">{props.temp.max}°C</span>
+        <span className="descricao">{props.temp.descricao}</span>
+        <span className="min">{props.temp.min}°C</span>
+      </span>
+    );
   }
 
   return (
@@ -65,23 +99,35 @@ export default function Cep() {
         <MdSend id="cep-icon" onClick={handleCepClick}></MdSend>
       </div>
 
+      <div id="msgerro" className={msgErro ? "show-erro" : "hide-erro"}>
+        {msgErro}
+      </div>
+
       <div id="localidade">
         <span>{exibeTemperaturaAtual()}</span>
       </div>
 
       {temperatura.temp && (
         <div id="temperaturas">
-          <ul>
+          {/* <ul>
             {temperatura.previsao.map((item) => (
               <li key={item.date}>
                 {item.date} - Max/min: {item.max}/{item.min}
                 {item.description}{" "}
               </li>
             ))}
-          </ul>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
+          </ul> */}
+          {temperatura.previsao.slice(1, 4).map((item) => (
+            <Previsao
+              temp={{
+                data: item.date,
+                max: item.max,
+                min: item.min,
+                descricao: item.description,
+              }}
+              key={item.date}
+            ></Previsao>
+          ))}
         </div>
       )}
     </>
